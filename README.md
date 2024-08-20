@@ -6,5 +6,7 @@ Simulates any number of blackjack games where the Hero uses basic (optimal strat
 
 See Kelly_100k.png for a comparison of bet aggression levels
   0.4x standard Kelly Bet seems to introduce enough aggression to capitalize on positive true counts but not too much as to destroy the bankroll early before any accumulation.
+
+
 See NumDecks.png for a comparison of performance with different numbers of decks being played. 
   High-Low is massively profitable when the minimum number of decks (2) is being played. 
