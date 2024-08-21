@@ -1,7 +1,7 @@
 import random
 import matplotlib.pyplot as plt
 Soft17 = True
-NumGames = 100000
+NumGames = 10000
 InitBankRoll = 10000
 BetSize = 1
 NumDecks = 2
@@ -80,6 +80,7 @@ class Game:
         self.betsize = self.kelly_citerion()
         self.bets = []
         self.outcomes = []
+        self.insurance = False  
         
 
     def count_card(self, card):
@@ -374,46 +375,65 @@ class Game:
             self.outcomes.append(-1)
             self.dealer_wins += 1
             self.bankroll -= hand.bet
+            if self.insurance:
+                self.bankroll += hand.bet 
         elif hand.blackjack() and not self.dealer.blackjack():
             print("PBJ")
             self.outcomes.append(1.5)
             self.player_wins += 1
             self.bankroll += hand.bet * 1.5 
+            if self.insurance:
+                self.bankroll -= hand.bet / 2
         # blackjack push
         elif hand.blackjack() and self.dealer.blackjack():
             print("BJPush")
             self.outcomes.append(0)
             self.ties += 1
+            if self.insurance:
+                self.bankroll -= hand.bet / 2
         elif hand.bust():
             print("PBust")
             self.outcomes.append(-1)
             self.dealer_wins += 1
-            self.bankroll -= hand.bet   
+            self.bankroll -= hand.bet
+            if self.insurance:
+                self.bankroll -= hand.bet / 2   
         elif self.dealer.bust():
             print("DBust")
             self.outcomes.append(1)
             self.player_wins += 1
-            self.bankroll += hand.bet   
+            self.bankroll += hand.bet  
+            if self.insurance:
+                self.bankroll -= hand.bet / 2 
         elif hand.value() > self.dealer.value():
             print("PWin")
             self.outcomes.append(1)    
             self.player_wins += 1
-            self.bankroll += hand.bet   
+            self.bankroll += hand.bet 
+            if self.insurance:
+                self.bankroll -= hand.bet / 2  
         elif hand.value() < self.dealer.value():
             print("DWin")    
             self.outcomes.append(-1)
             self.dealer_wins += 1
-            self.bankroll -= hand.bet   
+            self.bankroll -= hand.bet 
+            if self.insurance:
+                self.bankroll -= hand.bet / 2  
         # natural push
         else:
             print("NPush")
             self.ties += 1
             self.outcomes.append(0)
+            if self.insurance:
+                self.bankroll -= hand.bet / 2
             
     def play_game(self):
-        bet = self.kelly_citerion()    
+        bet = self.kelly_citerion() 
+        
         self.deal()  
         print("\n\nDUp: ", self.dealer_upcard) 
+        if self.rc/(len(self.deck.cards) / 52) >= 3 and self.dealer_upcard == 'A':
+            self.insurance = True
         self.player_play()
         if not any(hand.bust() for hand in self.player_hands):
             self.dealer_play()
